@@ -3,6 +3,7 @@ syntax = "proto3";
 package trivia.v1;
 
 import "rbt/v1alpha1/options.proto";
+import "google/protobuf/timestamp.proto";
 
 message Question {
   string question = 1;
@@ -27,6 +28,9 @@ message Game {
   // The correct answer to the Question
   uint32 correct_answer_idx = 3;
 
+  // Absolute time when the Game will move to the next status.
+  google.protobuf.Timestamp next_status = 5;
+
   // All players (could also be managed by `Presence`).
   repeated string players = 6;
 }
@@ -35,6 +39,22 @@ service GameMethods {
   rpc AddPlayer(AddPlayerRequest) returns (AddPlayerResponse) {
     option (rbt.v1alpha1.method).writer = {};
   }
+
+  // Gets the current visible game state (the part that this player can see).
+  // Guarantees to "tick"/update a few times a second (in practice would
+  // interpolate).
+  rpc VisibleState(VisibleStateRequest) returns (VisibleStateResponse) {
+    option (rbt.v1alpha1.method).reader = {
+    };
+  }
+
+  // The game loop: updates the status, and additionally "ticks" the game to
+  // force rendering.
+  // TODO: Consider using interpolation on the client.
+  rpc Ticker(TickerRequest) returns (TickerResponse) {
+    option (rbt.v1alpha1.method).workflow = {
+    };
+  }
 }
 
 message AddPlayerRequest {
@@ -42,3 +62,27 @@ message AddPlayerRequest {
 }
 
 message AddPlayerResponse {}
+
+message VisibleStateRequest {
+  string player_name = 1;
+}
+
+message VisibleStateResponse {
+  // The current status of the game.
+  GameStatus status = 1;
+
+  // The current Question.
+  Question question = 2;
+
+  // The correct answer to the Question IF we are in the cooldown status
+  // between questions.
+  optional uint32 correct_answer_idx = 3;
+
+  // The relative time in milliseconds until the game moves to the next status.
+  uint32 remaining_milliseconds = 5;
+}
+
+message TickerRequest {
+}
+
+message TickerResponse {}

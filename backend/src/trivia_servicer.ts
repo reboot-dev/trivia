@@ -1,6 +1,9 @@
-import { PartialMessage } from "@bufbuild/protobuf";
+import { PartialMessage, Timestamp } from "@bufbuild/protobuf";
 import {
   WriterContext,
+  ReaderContext,
+  WorkflowContext,
+  Loop,
 } from "@reboot-dev/reboot";
 import {
   Game,
@@ -8,9 +11,15 @@ import {
   Question,
   AddPlayerRequest,
   AddPlayerResponse,
+  VisibleStateResponse,
+  VisibleStateRequest,
+  TickerRequest,
+  TickerResponse,
 } from "../../api/trivia/v1/trivia_rbt.js";
 
 import { QUESTIONS } from "./questions.js";
+
+const QUESTION_TIME_MS = 30 * 1000;
 
 export class GameServicer extends Game.Servicer {
   async addPlayer(
@@ -26,6 +35,31 @@ export class GameServicer extends Game.Servicer {
 
     return {};
   }
+
+  async visibleState(
+    context: ReaderContext,
+    state: Game.State,
+    request: VisibleStateRequest
+  ): Promise<VisibleStateResponse | PartialMessage<VisibleStateResponse>> {
+
+    const correctAnswerIdx = state.status === GameStatus.COOLDOWN ? state.correctAnswerIdx : undefined;
+
+    const remainingMilliseconds = Math.max(0, state.nextStatus.toDate().getTime() - Date.now());
+
+    return {
+      status: state.status,
+      question: state.question,
+      correctAnswerIdx: correctAnswerIdx,
+      remainingMilliseconds: remainingMilliseconds,
+    };
+  }
+
+  async ticker(
+    context: WorkflowContext,
+    request: TickerRequest,
+  ): Promise<TickerResponse | PartialMessage<TickerResponse> | Loop> {
+    throw new Error("Not implemented");
+  }
 }
 
 function nextQuestion(state: Game.State) {
@@ -37,4 +71,6 @@ function nextQuestion(state: Game.State) {
     potentialAnswers: question.answers,
   });
   state.correctAnswerIdx = question.correctAnswerIdx;
+
+  state.nextStatus = Timestamp.fromDate(new Date(Date.now() + QUESTION_TIME_MS));
 }
