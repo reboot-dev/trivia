@@ -31,8 +31,7 @@ export class GameServicer extends Game.Servicer {
 function nextQuestion(state: Game.State) {
   state.status = GameStatus.QUESTION_RUNNING;
 
-
-  const question = QUESTIONS[Math.random() * QUESTIONS.length];
+  const question = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
   state.question = new Question({
     question: question.question,
     potentialAnswers: question.answers,
