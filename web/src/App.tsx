@@ -91,23 +91,33 @@ const AnswersSection = ({
 const QuestionSection = ({
   question,
   possibleAnswers,
+  remainingTime,
 }: {
-  question: string;
-  possibleAnswers: string[];
+  question: string | undefined;
+  possibleAnswers: string[] | undefined;
+  remainingTime: number;
 }) => {
+  if (question === undefined || possibleAnswers === undefined) {
+    return <h1>Loading...</h1>;
+  }
   const handleSubmit = (answer: number) => {
     console.log(answer);
     console.log("Submitted");
   };
   return (
-    <div className="flex flex-col justify-center items-center">
-      <h1 className="text-4xl">{question}</h1>
-      <ol className="list-decimal list-inside text-3xl">
-        {possibleAnswers.map((answer: string) => (
-          <li key={answer}>{answer} </li>
-        ))}
-      </ol>
-      <AnswerButtons onSubmit={handleSubmit} />
+    <div>
+      <div className="absolute top-0 right-0 p-10">
+        reamining seconds {Math.floor(remainingTime / 1000)}
+      </div>
+      <div className="flex flex-col justify-center items-center">
+        <h1 className="text-4xl w-1/2 text-yellow-500">{question}</h1>
+        <ol className="list-decimal list-inside text-3xl w-1/2">
+          {possibleAnswers.map((answer: string) => (
+            <li key={answer}>{answer} </li>
+          ))}
+        </ol>
+        <AnswerButtons onSubmit={handleSubmit} />
+      </div>
     </div>
   );
 };
@@ -115,22 +125,33 @@ const QuestionSection = ({
 const LoggedInGame = ({
   question,
   possibleAnswers,
+  playerName,
 }: {
   question: string;
   possibleAnswers: string[];
+  playerName: string;
 }) => {
-  const questionSection = true;
-  if (questionSection) {
+  const { useVisibleState } = useGame({ id: "trivia" });
+  const { response } = useVisibleState({ playerName });
+  console.log(response);
+
+  if (response?.status === 0) {
     return (
-      <QuestionSection question={question} possibleAnswers={possibleAnswers} />
+      <QuestionSection
+        remainingTime={response.remainingMilliseconds}
+        question={response.question?.question}
+        possibleAnswers={response.question?.potentialAnswers}
+      />
     );
   }
   return (
-    <AnswersSection
-      question={question}
-      possibleAnswers={possibleAnswers}
-      correctAnswerIndex={2}
-    />
+    <h1>hello</h1>
+    // <AnswersSection
+    //   question={question}
+    //   possibleAnswers={possibleAnswers}
+    //   correctAnswerIndex={2}
+    //   // answers={}
+    // />
   );
 };
 
@@ -140,17 +161,21 @@ function chooseAtRandom(arr: string[]) {
 
 function App() {
   const { addPlayer } = useGame({ id: "trivia" });
+  const [playerName, setPlayerName] = useState<string>();
 
   useEffect(() => {
     const playerName = chooseAtRandom(funNames);
-    console.log(playerName);
+    setPlayerName(playerName);
 
     addPlayer({ playerName });
   }, []);
 
+  if (playerName === undefined) return <>Loading...</>;
+
   return (
     <div className="bg-black w-screen h-screen text-white flex justify-center items-center">
       <LoggedInGame
+        playerName={playerName}
         question="Who is the queen of france?"
         possibleAnswers={["Freddy", "Jane", "Queen Jane", "Simon"]}
       />
