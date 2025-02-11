@@ -102,6 +102,11 @@ message VisibleStateResponse {
   // between questions.
   optional uint32 correct_answer_idx = 3;
 
+  // The answers that are visible to this user in this status.
+  // key is the user
+  // value is their answer.
+  map<string, uint32> answers = 4;
+
   // The relative time in milliseconds until the game moves to the next status.
   uint32 remaining_milliseconds = 5;
 }

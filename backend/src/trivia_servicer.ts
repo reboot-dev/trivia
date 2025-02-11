@@ -67,10 +67,22 @@ export class GameServicer extends Game.Servicer {
 
     const remainingMilliseconds = Math.max(0, state.nextStatus.toDate().getTime() - Date.now());
 
+    let answers = {};
+    if (state.status == GameStatus.COOLDOWN) {
+      // Render all answers.
+      answers = state.answers;
+    } else {
+      // Render only the user's answer, if any.
+      if (request.playerName in state.answers) {
+        answers = { [request.playerName]: state.answers[request.playerName] };
+      }
+    }
+
     return {
       status: state.status,
       question: state.question,
       correctAnswerIdx: correctAnswerIdx,
+      answers: answers,
       remainingMilliseconds: remainingMilliseconds,
     };
   }
