@@ -9,5 +9,5 @@
     "sourceMap": true
   },
   "outDir": "dist",
-  "exclude": ["dist", "web"]
+  "exclude": ["dist", "web", "boilerplate"]
 }

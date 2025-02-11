@@ -28,6 +28,8 @@ protoc api/
 protoc --nodejs=api
 protoc --react=api
 
+protoc --boilerplate=boilerplate
+
 # Tell `rbt` that this is a Node.js application.
 dev run --nodejs
 
