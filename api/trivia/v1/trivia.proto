@@ -24,6 +24,9 @@ message Game {
   // The current Question.
   Question question = 2;
 
+  // The correct answer to the Question
+  uint32 correct_answer_idx = 3;
+
   // All players (could also be managed by `Presence`).
   repeated string players = 6;
 }

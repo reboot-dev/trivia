@@ -10,6 +10,8 @@ import {
   AddPlayerResponse,
 } from "../../api/trivia/v1/trivia_rbt.js";
 
+import { QUESTIONS } from "./questions.js";
+
 export class GameServicer extends Game.Servicer {
   async addPlayer(
     context: WriterContext,
@@ -29,13 +31,11 @@ export class GameServicer extends Game.Servicer {
 function nextQuestion(state: Game.State) {
   state.status = GameStatus.QUESTION_RUNNING;
 
+
+  const question = QUESTIONS[Math.random() * QUESTIONS.length];
   state.question = new Question({
-    question: "What is your favorite color?",
-    potentialAnswers: [
-      "red",
-      "blue",
-      "green",
-      "pink",
-    ],
+    question: question.question,
+    potentialAnswers: question.answers,
   });
+  state.correctAnswerIdx = question.correctAnswerIdx;
 }
