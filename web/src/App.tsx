@@ -11,9 +11,9 @@ const AnswerButtons = ({
 
   const getClassName = (index: number) => {
     if (answer === index) {
-      return "bg-white text-black p-2 m-2 h-10 w-10 bg-yellow-500 text-darkblue";
+      return "bg-white text-black p-2 m-2 h-10 w-10 bg-yellow-500 text-darkblue cursor-pointer";
     }
-    return "p-2 m-2 h-10 w-10 bg-blue-500 text-white";
+    return "p-2 m-2 h-10 w-10 bg-blue-500 text-white cursor-pointer";
   };
 
   const handleSubmit = (answer: number | undefined) => {
@@ -40,7 +40,7 @@ const AnswerButtons = ({
         </button>
       </div>
       <button
-        className="h-20 w-40 bg-yellow-500 text-2xl text-black font-bold"
+        className="h-20 w-40 bg-yellow-500 text-2xl text-black font-bold cursor-pointer"
         onClick={() => handleSubmit(answer)}
       >
         Submit
@@ -49,7 +49,46 @@ const AnswerButtons = ({
   );
 };
 
-const LoggedInGame = ({
+const AnswersSection = ({
+  question,
+  possibleAnswers,
+  correctAnswerIndex,
+  answers,
+}: {
+  question: string;
+  possibleAnswers: string[];
+  correctAnswerIndex: number;
+  answers: { [key: string]: number };
+}) => {
+  return (
+    <div className="flex flex-col justify-center items-center">
+      <h1 className="text-4xl">{question}</h1>
+      <ol className="list-decimal list-inside text-3xl">
+        {possibleAnswers.map((answer: string, index: number) => (
+          <li
+            key={answer}
+            className={
+              correctAnswerIndex === index
+                ? "font-bold text-green-900"
+                : "text-red-500"
+            }
+          >
+            {answer}{" "}
+          </li>
+        ))}
+      </ol>
+      <ul>
+        {Object.entries(answers).map(([key, value]) => (
+          <li key={key}>
+            {key}: {value === correctAnswerIndex ? "Correct" : "Incorrect"}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const QuestionSection = ({
   question,
   possibleAnswers,
 }: {
@@ -61,7 +100,7 @@ const LoggedInGame = ({
     console.log("Submitted");
   };
   return (
-    <div>
+    <div className="flex flex-col justify-center items-center">
       <h1 className="text-4xl">{question}</h1>
       <ol className="list-decimal list-inside text-3xl">
         {possibleAnswers.map((answer: string) => (
@@ -70,6 +109,28 @@ const LoggedInGame = ({
       </ol>
       <AnswerButtons onSubmit={handleSubmit} />
     </div>
+  );
+};
+
+const LoggedInGame = ({
+  question,
+  possibleAnswers,
+}: {
+  question: string;
+  possibleAnswers: string[];
+}) => {
+  const questionSection = true;
+  if (questionSection) {
+    return (
+      <QuestionSection question={question} possibleAnswers={possibleAnswers} />
+    );
+  }
+  return (
+    <AnswersSection
+      question={question}
+      possibleAnswers={possibleAnswers}
+      correctAnswerIndex={2}
+    />
   );
 };
 
