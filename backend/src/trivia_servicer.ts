@@ -15,6 +15,8 @@ import {
   VisibleStateRequest,
   TickerRequest,
   TickerResponse,
+  AnswerRequest,
+  AnswerResponse
 } from "../../api/trivia/v1/trivia_rbt.js";
 
 import { QUESTIONS } from "./questions.js";
@@ -34,6 +36,23 @@ export class GameServicer extends Game.Servicer {
       nextQuestion(state);
       await this.lookup().schedule().ticker(context);
     }
+
+    return {};
+  }
+
+  async answer(
+    context: WriterContext,
+    state: Game.State,
+    request: AnswerRequest
+  ): Promise<AnswerResponse | PartialMessage<AnswerResponse>> {
+    if (state.status !== GameStatus.QUESTION_RUNNING) {
+      throw new Error("A question is not running.");
+    }
+    if (request.question !== state.question.question) {
+      throw new Error("That is not the current question.");
+    }
+
+    state.answers[request.playerName] = request.answerIndex;
 
     return {};
   }
@@ -92,6 +111,8 @@ function nextQuestion(state: Game.State) {
     potentialAnswers: question.answers,
   });
   state.correctAnswerIdx = question.correctAnswerIdx;
+
+  state.answers = {};
 
   state.nextStatus = Timestamp.fromDate(new Date(Date.now() + QUESTION_TIME_MS));
 }
