@@ -33,6 +33,13 @@ message Game {
 
   // All players (could also be managed by `Presence`).
   repeated string players = 6;
+
+  // A "tick" value which we use to force re-rendering of the visible state
+  // as time passes.
+  // TODO: Rather than ticking like this, ideally we'd only send the remaining
+  // time when the state has changed for some other reason. But this avoids
+  // needing to interpolate the state on the client side.
+  uint64 tick = 7;
 }
 
 service GameMethods {

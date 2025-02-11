@@ -64,13 +64,23 @@ export class GameServicer extends Game.Servicer {
     await this.state.write(`tick ${context.iteration}`, context, async (state) => {
       if (state.nextStatus.toDate().getTime() <= Date.now()) {
         // Time to move to the next question!
-        nextQuestion(state);
-        // TODO: implement the next game status.
+        if (state.status === GameStatus.COOLDOWN) {
+          nextQuestion(state);
+        } else {
+          nextCooldown(state);
+        }
       }
+      state.tick = context.iteration;
     });
 
     return new Loop({when: new Date(Date.now() + TICK_TIME_MS)});
   }
+}
+
+function nextCooldown(state: Game.State) {
+  state.status = GameStatus.COOLDOWN;
+
+  state.nextStatus = Timestamp.fromDate(new Date(Date.now() + QUESTION_TIME_MS));
 }
 
 function nextQuestion(state: Game.State) {
