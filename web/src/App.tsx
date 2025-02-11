@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { funNames } from "./funNames";
+import { useGame } from "../../api/trivia/v1/trivia_rbt_react";
 
 const AnswerButtons = ({
   onSubmit,
@@ -71,7 +73,20 @@ const LoggedInGame = ({
   );
 };
 
+function chooseAtRandom(arr: string[]) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 function App() {
+  const { addPlayer } = useGame({ id: "trivia" });
+
+  useEffect(() => {
+    const playerName = chooseAtRandom(funNames);
+    console.log(playerName);
+
+    addPlayer({ playerName });
+  }, []);
+
   return (
     <div className="bg-black w-screen h-screen text-white flex justify-center items-center">
       <LoggedInGame
