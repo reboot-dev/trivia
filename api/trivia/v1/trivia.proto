@@ -82,7 +82,6 @@ message VisibleStateResponse {
   uint32 remaining_milliseconds = 5;
 }
 
-message TickerRequest {
-}
+message TickerRequest {}
 
 message TickerResponse {}

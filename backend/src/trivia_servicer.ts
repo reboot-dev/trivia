@@ -20,6 +20,7 @@ import {
 import { QUESTIONS } from "./questions.js";
 
 const QUESTION_TIME_MS = 30 * 1000;
+const TICK_TIME_MS = 250;
 
 export class GameServicer extends Game.Servicer {
   async addPlayer(
@@ -30,7 +31,8 @@ export class GameServicer extends Game.Servicer {
     state.players.push(request.playerName);
 
     if (state.players.length === 1) {
-      await nextQuestion(state);
+      nextQuestion(state);
+      await this.lookup().schedule().ticker(context);
     }
 
     return {};
@@ -58,7 +60,16 @@ export class GameServicer extends Game.Servicer {
     context: WorkflowContext,
     request: TickerRequest,
   ): Promise<TickerResponse | PartialMessage<TickerResponse> | Loop> {
-    throw new Error("Not implemented");
+
+    await this.state.write(`tick ${context.iteration}`, context, async (state) => {
+      if (state.nextStatus.toDate().getTime() <= Date.now()) {
+        // Time to move to the next question!
+        nextQuestion(state);
+        // TODO: implement the next game status.
+      }
+    });
+
+    return new Loop({when: new Date(Date.now() + TICK_TIME_MS)});
   }
 }
 
