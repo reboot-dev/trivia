@@ -8,6 +8,8 @@ message Game {
   option (rbt.v1alpha1.state) = {
   };
 
+  // All players (could also be managed by `Presence`).
+  repeated string players = 6;
 }
 
 service GameMethods {
