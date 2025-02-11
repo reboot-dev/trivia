@@ -4,9 +4,25 @@ package trivia.v1;
 
 import "rbt/v1alpha1/options.proto";
 
+message Question {
+  string question = 1;
+  repeated string potential_answers = 2;
+}
+
+enum GameStatus {
+  QUESTION_RUNNING = 0;
+  COOLDOWN = 1;
+}
+
 message Game {
   option (rbt.v1alpha1.state) = {
   };
+
+  // The current status of the game.
+  GameStatus status = 1;
+
+  // The current Question.
+  Question question = 2;
 
   // All players (could also be managed by `Presence`).
   repeated string players = 6;
